@@ -32,7 +32,6 @@ function GoogleAnalytics({GA_MEASUREMENT_ID}: {GA_MEASUREMENT_ID: string}) {
 
   return (
     <>
-      <h1>XXX</h1>
       <Script
         src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
       />
