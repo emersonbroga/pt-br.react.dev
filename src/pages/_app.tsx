@@ -6,12 +6,14 @@ import {useEffect} from 'react';
 import {AppProps} from 'next/app';
 import {useRouter} from 'next/router';
 import {ga} from '../utils/analytics';
+import Script from 'next/script';
 
 import '@docsearch/css';
 import '../styles/algolia.css';
 import '../styles/index.css';
 import '../styles/sandpack.css';
 
+let GA_MEASUREMENT_ID: string | null = null;
 if (typeof window !== 'undefined') {
   if (process.env.NODE_ENV === 'production') {
     ga('create', process.env.NEXT_PUBLIC_GA_TRACKING_ID, 'auto');
@@ -21,6 +23,30 @@ if (typeof window !== 'undefined') {
   window.addEventListener(terminationEvent, function () {
     ga('send', 'timing', 'JS Dependencies', 'unload');
   });
+
+  GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || '';
+}
+
+function GoogleAnalytics({GA_MEASUREMENT_ID}: {GA_MEASUREMENT_ID: string}) {
+  if (!GA_MEASUREMENT_ID) return null;
+
+  return (
+    <>
+      <h1>XXX</h1>
+      <Script
+        src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
+      />
+      <Script id="google-analytics">
+        {`
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', '${GA_MEASUREMENT_ID}');
+    `}
+      </Script>
+    </>
+  );
 }
 
 export default function MyApp({Component, pageProps}: AppProps) {
@@ -53,5 +79,12 @@ export default function MyApp({Component, pageProps}: AppProps) {
     };
   }, [router.events]);
 
-  return <Component {...pageProps} />;
+  return (
+    <>
+      {GA_MEASUREMENT_ID && (
+        <GoogleAnalytics GA_MEASUREMENT_ID={GA_MEASUREMENT_ID} />
+      )}
+      <Component {...pageProps} />
+    </>
+  );
 }
